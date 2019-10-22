@@ -4,6 +4,7 @@
     <!-- Import the full EAD 2002 XML Schema -->
     <xs:import namespace="urn:isbn:1-931666-22-9" schemaLocation="http://www.loc.gov/ead/ead.xsd"/>
 
+    <!-- Add Schematron rules on top -->
     <xs:element name="ead">
         <xs:annotation>
             <xs:appinfo>
