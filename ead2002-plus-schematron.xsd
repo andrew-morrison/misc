@@ -32,7 +32,7 @@
                         <assert test="ead:unitdate[@type = 'inclusive']">Missing element: unitdate (of type "inclusive")</assert>
                     </rule>
 
-                    <rule context="//ead:abbr | //ead:accruals | //ead:address | //ead:addressline | //ead:altformavail | //ead:appraisal | //ead:arc | //ead:archdescgrp | //ead:archref | //ead:bibseries | //ead:blockquote | //ead:change | //ead:chronitem | //ead:chronlist | //ead:colspec | //ead:creation | //ead:daogrp | //ead:daoloc | //ead:defitem | //ead:descgrp | //ead:descrules | //ead:dimensions | //ead:dscgrp | //ead:eadgrp | //ead:emph | //ead:entry | //ead:event | //ead:eventgrp | //ead:extptr | //ead:extptrloc | //ead:extrefloc | //ead:fileplan | //ead:frontmatter | //ead:function | //ead:genreform | //ead:head01 | //ead:head02 | //ead:imprint | //ead:label | //ead:lb | //ead:legalstatus | //ead:linkgrp | //ead:listhead | //ead:materialspec | //ead:name | //ead:namegrp | //ead:note | //ead:notestmt | //ead:num | //ead:occupation | //ead:origination | //ead:physfacet | //ead:physloc | //ead:phystech | //ead:processinfo | //ead:ptr | //ead:ptrgrp | //ead:ptrloc | //ead:publisher | //ead:ref | //ead:resource | //ead:row | //ead:runner | //ead:seriesstmt | //ead:subarea | //ead:subtitle | //ead:table | //ead:tbody | //ead:tgroup | //ead:thead | //ead:titlepage" role="error">
+                    <rule context="//ead:abbr | //ead:accruals | //ead:address | //ead:addressline | //ead:altformavail | //ead:appraisal | //ead:arc | //ead:archdescgrp | //ead:archref | //ead:bibseries | //ead:blockquote | //ead:change | //ead:chronitem | //ead:chronlist | //ead:colspec | //ead:creation | //ead:daogrp | //ead:daoloc | //ead:defitem | //ead:descgrp | //ead:descrules | //ead:dimensions | //ead:dscgrp | //ead:eadgrp | //ead:emph | //ead:entry | //ead:event | //ead:eventgrp | //ead:extptr | //ead:extptrloc | //ead:extrefloc | //ead:fileplan | //ead:frontmatter | //ead:function | //ead:genreform | //ead:head01 | //ead:head02 | //ead:imprint | //ead:label | //ead:lb | //ead:legalstatus | //ead:linkgrp | //ead:listhead | //ead:materialspec | //ead:name | //ead:namegrp | //ead:note | //ead:notestmt | //ead:num | //ead:occupation | //ead:origination | //ead:physloc | //ead:phystech | //ead:processinfo | //ead:ptr | //ead:ptrgrp | //ead:ptrloc | //ead:publisher | //ead:ref | //ead:resource | //ead:row | //ead:runner | //ead:seriesstmt | //ead:subarea | //ead:subtitle | //ead:table | //ead:tbody | //ead:tgroup | //ead:thead | //ead:titlepage" role="error">
                         <report test=".">Banned element: <name/></report>
                     </rule>
                     
@@ -43,6 +43,10 @@
                     
                     <rule context="ead:unitdate" role="error">
                         <assert test="@normal">Missing attribute: unitdates must have normal attributes</assert>
+                    </rule>
+                    
+                    <rule context="ead:physfacet" role="error">
+                        <report test="preceding-sibling::ead:extent or following-sibling::ead:extent">Incorrect siblings: physfacet must be in a separate physdesc from extent</report>
                     </rule>
                     
                     <rule context="/ead:ead/ead:archdesc/ead:controlaccess" role="warn">
