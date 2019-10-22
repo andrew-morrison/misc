@@ -1,1 +1,1 @@
-# misc
+Miscellaneous scripts, schemas, etc I need online but do not warrant a repository of their own.
