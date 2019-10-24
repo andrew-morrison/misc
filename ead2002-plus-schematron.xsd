@@ -13,7 +13,7 @@
                 <pattern>
                     
                     <let name="isfullcat" value="boolean(/ead:ead/ead:archdesc/ead:dsc/ead:*)"/>
-                    <let name="issingleitem" value="boolean(/ead:ead/ead:archdesc/@level='item')"/>
+                    <let name="issingleitem" value="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
                     <let name="serieslevels" value="('series','subseries','otherlevel')"/>
                     <let name="filelevels" value="('file')"/>
 
@@ -39,11 +39,8 @@
                         <assert test="ead:controlaccess">
                             Missing element: controlaccess
                         </assert>
-                        <assert test="$issingleitem and ead:odd/ead:head[normalize-space(string()) = 'Shelfmark:']">
-                            Missing element: odd (with a heading of "Shelfmark:")
-                        </assert>
-                        <assert test="not($issingleitem) and ead:odd/ead:head[normalize-space(string()) = 'Full range of shelfmarks:']">
-                            Missing element: odd (with a heading of "Full range of shelfmarks:")
+                        <assert test="ead:odd[($issingleitem and normalize-space(string(ead:head[1])) = 'Shelfmark:') or ($isfullcat and normalize-space(string(ead:head[1])) = 'Full range of shelfmarks:')]">
+                            Missing element: odd (with a heading of "Shelfmark:" for single items or "Full range of shelfmarks:" for full catalogues)
                         </assert>
                         <assert test="ead:prefercite">
                             Missing element: prefercite
@@ -162,7 +159,7 @@
                     
                     <!-- Odds at file level -->
                     <rule
-                        context="ead:*[@level = $filelevels]/ead:odd"
+                        context="ead:*[not(self::ead:archdesc) and @level = $filelevels]/ead:odd"
                         role="warn">
                         <assert 
                             test="ead:head[normalize-space(string()) = 'Former reference:']">
