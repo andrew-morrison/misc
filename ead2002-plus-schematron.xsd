@@ -16,6 +16,7 @@
                     <let name="issingleitem" value="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
                     <let name="serieslevels" value="('series','subseries','otherlevel')"/>
                     <let name="filelevels" value="('file')"/>
+                    <let name="scurls" value="('http://solo.ouls.ox.ac.uk/permalink/f/n9grc9/oxfaleph010801538','http://solo.bodleian.ox.ac.uk/permalink/f/n9grc9/oxfaleph010801538','http://solo.bodleian.ox.ac.uk/permalink/f/n9grc9/oxfaleph010116452','http://solo.ouls.ox.ac.uk/permalink/f/n9grc9/oxfaleph010116452')"/>
 
                     <!-- Banned elements at all levels -->
                     <rule 
@@ -218,7 +219,7 @@
                             Wrong namespace prefix: <name/> using ns2: instead of xlink: (also need to change declaration in the root element)
                         </report>
                         <report 
-                            test="@*[local-name() = 'href' and not(matches(., 'oxfaleph(010801538|010116452)'))]"
+                            test="@*[local-name() = 'href' and not(. = $scurls)]"
                             role="info">
                             Optional element: extref
                         </report>
