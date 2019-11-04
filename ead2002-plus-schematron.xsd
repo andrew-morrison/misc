@@ -218,7 +218,8 @@
                             Wrong namespace prefix: <name/> using ns2: instead of xlink: (also need to change declaration in the root element)
                         </report>
                         <report 
-                            test=".">
+                            test="@*[local-name() = 'href' and not(matches(., 'oxfaleph(010801538|010116452)'))]"
+                            role="info">
                             Optional element: extref
                         </report>
                     </rule>
