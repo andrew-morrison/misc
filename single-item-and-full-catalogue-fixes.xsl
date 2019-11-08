@@ -55,7 +55,7 @@
     <xsl:template match="ead:profiledesc/ead:creation"/>
     
     
-    <!-- Change 5 for full catalogues only -->
+    <!-- Change 5 for full catalogues only: Delete repository -->
     
     <xsl:template match="ead:archdesc/ead:did/ead:repository[$isfullcat]"/>
     
