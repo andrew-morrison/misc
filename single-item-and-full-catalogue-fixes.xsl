@@ -139,7 +139,7 @@
     
     <xsl:template match="ead:container[$isfullcat]">
         <xsl:choose>
-            <xsl:when test="not(@altrender) and 1 eq 2">
+            <xsl:when test="not(@altrender)">
                 <xsl:variable name="barcode" as="xs:string" select="replace(@label, '^[^\(]+\(([^\)]+)\).*$', '$1')"/>
                 <xsl:copy>
                     <xsl:attribute name="altrender" select="normalize-space(string())"/>
