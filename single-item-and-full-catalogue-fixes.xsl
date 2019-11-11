@@ -14,7 +14,7 @@
     
     <!-- Global variables -->
     <xsl:variable name="isfullcat" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/ead:dsc/ead:*)"/>
-    <xsl:variable name="isingleitem" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
+    <xsl:variable name="issingleitem" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
     
     <!-- Root template -->
     
@@ -161,7 +161,7 @@
     
     <!-- Change 12 for single items, change 15 for full catalogues: remove spurious precision in extents -->
     
-    <xsl:template match="ead:extent[$isingleitem or ancestor::ead:*[@level][1]/@level = 'file']//text()">
+    <xsl:template match="ead:extent[$issingleitem or ancestor::ead:*[@level][1]/@level = 'file']//text()">
         <xsl:analyze-string select="." regex="(\d+)\.0(\D)">
             <xsl:matching-substring>
                 <xsl:value-of select="regex-group(1)"/>
