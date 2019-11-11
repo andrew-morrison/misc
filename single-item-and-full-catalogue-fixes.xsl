@@ -14,7 +14,7 @@
     
     <!-- Global variables -->
     <xsl:variable name="isfullcat" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/ead:dsc/ead:*)"/>
-    
+    <xsl:variable name="isingleitem" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
     
     <!-- Root template -->
     
@@ -55,9 +55,9 @@
     <xsl:template match="ead:profiledesc/ead:creation"/>
     
     
-    <!-- Change 5 for full catalogues only: Delete repository -->
+    <!-- Change 5 for full catalogues (also apply to single items): Delete repository -->
     
-    <xsl:template match="ead:archdesc/ead:did/ead:repository[$isfullcat]"/>
+    <xsl:template match="ead:archdesc/ead:did/ead:repository"/>
     
     
     <!-- Change 5 for single items, change 6 for full catalogues: Delete heads in certain elements. 
@@ -161,7 +161,7 @@
     
     <!-- Change 12 for single items, change 15 for full catalogues: remove spurious precision in extents -->
     
-    <xsl:template match="ead:extent[ancestor::ead:*[@level][1]/@level = 'file']//text()">
+    <xsl:template match="ead:extent[$isingleitem or ancestor::ead:*[@level][1]/@level = 'file']//text()">
         <xsl:analyze-string select="." regex="(\d+)\.0(\D)">
             <xsl:matching-substring>
                 <xsl:value-of select="regex-group(1)"/>
