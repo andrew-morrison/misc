@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns="http://purl.oclc.org/dsdl/schematron" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
     <!-- Import the full EAD 2002 XML Schema -->
     <xs:import namespace="urn:isbn:1-931666-22-9" schemaLocation="http://www.loc.gov/ead/ead.xsd"/>
@@ -9,6 +9,13 @@
         <xs:annotation>
             <xs:appinfo>
                 <ns uri="urn:isbn:1-931666-22-9" prefix="ead"/>
+                
+                <ns uri="/" prefix="local"/>
+                
+                <xsl:function name="local:getUnitId" as="xs:string">
+                    <xsl:param name="elem" as="element()"/>
+                    <xsl:value-of select="concat('|', normalize-space(($elem/ead:unitid/string(), $elem/ead:did/ead:unitid/string(), $elem/ancestor-or-self::ead:*[ead:unitid][1]/ead:unitid/string(), $elem/ancestor::ead:ead/ead:archdesc/ead:did/ead:unitid/string())[1]))"/>
+                </xsl:function>
                 
                 <pattern>
                     
@@ -24,6 +31,7 @@
                         role="error">
                         <report test=".">
                             Banned element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
 
@@ -33,21 +41,27 @@
                         role="error">
                         <assert test="ead:acqinfo">
                             Missing element: acqinfo
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:bioghist">
                             Missing element: bioghist
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:controlaccess">
                             Missing element: controlaccess
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:odd[($issingleitem and normalize-space(string(ead:head[1])) = 'Shelfmark:') or ($isfullcat and normalize-space(string(ead:head[1])) = 'Full range of shelfmarks:')]">
                             Missing element: odd (with a heading of "Shelfmark:" for single items or "Full range of shelfmarks:" for full catalogues)
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:prefercite">
                             Missing element: prefercite
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:scopecontent">
                             Missing element: scopecontent
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
 
@@ -57,18 +71,23 @@
                         role="error">
                         <assert test="ead:abstract">
                             Missing element: abstract
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:physdesc/ead:extent">
                             Missing element: extent
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:langmaterial">
                             Missing element: langmaterial
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:unitid">
                             Missing element: unitid
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:unitdate[@type = 'inclusive']">
                             Missing element: unitdate (of type "inclusive")
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
                     
@@ -77,7 +96,10 @@
                         context="ead:altformavail | ead:blockquote | ead:dimensions | ead:physloc"
                         role="error">
                         <let name="iscollectionlevel" value="boolean(ancestor::ead:*[@level][1]/self::archdesc)"/>
-                        <report test="iscollectionlevel">Banned element: <name/></report>
+                        <report test="iscollectionlevel">
+                            Banned element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
                     </rule>
                     
                     <!-- Collection-level controlaccess -->
@@ -87,6 +109,7 @@
                         <assert 
                             test=".//ead:subject and (.//ead:persname or .//ead:corpname)">
                             Missing elements: controlaccess should contain at least one subject and at least one name
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
                     
@@ -97,10 +120,12 @@
                         <report 
                             test="$issingleitem and count(ead:extent) gt 1">
                             Too many elements: multiple extents
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                         <report 
                             test="$isfullcat and count(ead:extent) ne 2">
                             Too few elements: there should be two extents (one for shelfmarks/boxes and one for linear metres)
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
                     <rule 
@@ -109,6 +134,7 @@
                         <report 
                             test="preceding-sibling::ead:extent or following-sibling::ead:extent">
                             Incorrect siblings: physfacet must be in a separate physdesc from extent
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
                     
@@ -117,23 +143,38 @@
                         context="ead:abstract | ead:accessrestrict | ead:bibliography | ead:blockquote | ead:date | ead:dimensions | ead:extent | ead:index | ead:otherfindaid | ead:physdesc | ead:physfacet | ead:physloc | ead:prefercite | ead:refloc"
                         role="error">
                         <let name="isserieslevel" value="boolean(ancestor::ead:*[@level][1]/@level = $serieslevels)"/>
-                        <report test="$isserieslevel">Banned element: <name/></report>
+                        <report test="$isserieslevel">
+                            Banned element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
                     </rule>
                     
                     <!-- Mandatory elements at series level -->
                     <rule 
                         context="ead:*[@level = $serieslevels]" 
                         role="error">
-                        <assert test="ead:odd/ead:head[normalize-space(string()) = 'Full range of shelfmarks:']">Missing element: odd (with a heading of "Full range of shelfmarks:")</assert>
+                        <assert test="ead:odd/ead:head[normalize-space(string()) = 'Full range of shelfmarks:']">
+                            Missing element: odd (with a heading of "Full range of shelfmarks:")
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
                     </rule>
                     
                     <!-- More mandatory elements at series level -->
                     <rule 
                         context="ead:*[@level = $serieslevels]/ead:did" 
                         role="error">
-                        <assert test="ead:unittitle">Missing element: unittitle</assert>
-                        <assert test="ead:unitdate">Missing element: unitdate</assert>
-                        <assert test="ead:langmaterial">Missing element: langmaterial</assert>
+                        <assert test="ead:unittitle">
+                            Missing element: unittitle
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
+                        <assert test="ead:unitdate">
+                            Missing element: unitdate
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
+                        <assert test="ead:langmaterial">
+                            Missing element: langmaterial
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
                     </rule>
                     
                     <!-- Banned elements at file level -->
@@ -144,6 +185,7 @@
                         <report 
                             test="$isfilelevel">
                             Banned element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
                     
@@ -151,11 +193,26 @@
                     <rule 
                         context="ead:*[@level = $filelevels]/ead:did" 
                         role="error">
-                        <assert test="ead:physdesc/ead:extent">Missing element: extent</assert>
-                        <assert test="ead:langmaterial">Missing element: langmaterial</assert>
-                        <assert test="ead:unitid">Missing element: unitid</assert>
-                        <assert test="ead:unitdate[@type = 'inclusive']">Missing element: unitdate (of type "inclusive")</assert>
-                        <assert test="ead:unittitle">Missing element: unittitle</assert>
+                        <assert test="ead:physdesc/ead:extent">
+                            Missing element: extent
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
+                        <assert test="ead:langmaterial">
+                            Missing element: langmaterial
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
+                        <assert test="ead:unitid">
+                            Missing element: unitid
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
+                        <assert test="ead:unitdate[@type = 'inclusive']">
+                            Missing element: unitdate (of type "inclusive")
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
+                        <assert test="ead:unittitle">
+                            Missing element: unittitle
+                            <value-of select="local:getUnitId(.)"/>
+                        </assert>
                     </rule>
                     
                     <!-- Odds at file level -->
@@ -165,6 +222,7 @@
                         <assert 
                             test="ead:head[normalize-space(string()) = 'Former reference:']">
                             Wrong heading: odd elements at file level should have a heading of "Former reference:"
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
 
@@ -176,6 +234,7 @@
                         <assert 
                             test="$alllangmaterial/ead:language[@langcode] and string-length(normalize-space(replace(string-join($alllangmaterial//text()), '( and |,|\.)', ''))) gt 0">
                             Insufficient language description: There must be both language codes and human-readable text
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
                     
@@ -187,11 +246,13 @@
                             test="not($isserieslevel) and @normal and matches(string(.), '\d')"
                             role="error">
                             Missing attribute: unitdates must have normal attributes
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <report 
                             test="$isserieslevel and (@normal or @type)"
                             role="warn">
                             Banned attribute: unitdates should not have attributes at series level
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
                     
@@ -202,6 +263,7 @@
                         <report 
                             test="//ead:list[.//ead:list]">
                             Too much structure: nested list in scopecontent
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
 
@@ -212,16 +274,19 @@
                             test="@*[local-name() = 'href' and namespace-uri() = 'http://www.w3.org/1999/xlink']" 
                             role="error">
                             Missing attribute: extref needs xlink:href
+                            <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <report 
                             test="@*[starts-with(name(), 'ns2')]" 
                             role="warn">
                             Wrong namespace prefix: <name/> using ns2: instead of xlink: (also need to change declaration in the root element)
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                         <report 
                             test="@*[local-name() = 'href' and not(. = $scurls)]"
                             role="info">
                             Optional element: extref
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
 
@@ -233,6 +298,7 @@
                         <report 
                             test="$iscollectionlevel">
                             Optional element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
                     
@@ -244,6 +310,7 @@
                         <report 
                             test="$isserieslevel">
                             Optional element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
                     
@@ -255,6 +322,7 @@
                         <report 
                             test="$isfilelevel">
                             Optional element: <name/>
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
 
