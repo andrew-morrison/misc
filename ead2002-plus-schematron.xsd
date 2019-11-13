@@ -14,7 +14,17 @@
                 
                 <xsl:function name="local:getUnitId" as="xs:string">
                     <xsl:param name="elem" as="element()"/>
-                    <xsl:value-of select="concat('|', normalize-space(($elem/ead:unitid/string(), $elem/ead:did/ead:unitid/string(), $elem/ancestor-or-self::ead:*[ead:unitid][1]/ead:unitid/string(), $elem/ancestor::ead:ead/ead:archdesc/ead:did/ead:unitid/string())[1]))"/>
+                    <xsl:value-of select="concat('|', normalize-space(
+                        (
+                        $elem/self::ead:unitid/string(), 
+                        $elem/ead:unitid/string(), 
+                        $elem/ead:did/ead:unitid/string(), 
+                        $elem/parent::ead:*/ead:unitid/string(),
+                        $elem/parent::ead:*/ead:did/ead:unitid/string(),
+                        $elem/ancestor-or-self::ead:*[not(self::ead:archdesc) and ead:did/ead:unitid][1]/ead:did/ead:unitid/string(),
+                        $elem/ancestor::ead:ead/ead:archdesc/ead:did/ead:unitid/string()
+                        )
+                        [1]))"/>
                 </xsl:function>
                 
                 <pattern>
