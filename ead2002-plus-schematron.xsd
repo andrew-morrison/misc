@@ -14,17 +14,26 @@
                 
                 <xsl:function name="local:getUnitId" as="xs:string">
                     <xsl:param name="elem" as="element()"/>
-                    <xsl:value-of select="concat('|', normalize-space(
-                        (
-                        $elem/self::ead:unitid/string(), 
-                        $elem/ead:unitid/string(), 
-                        $elem/ead:did/ead:unitid/string(), 
-                        $elem/parent::ead:*/ead:unitid/string(),
-                        $elem/parent::ead:*/ead:did/ead:unitid/string(),
-                        $elem/ancestor-or-self::ead:*[not(self::ead:archdesc) and ead:did/ead:unitid][1]/ead:did/ead:unitid/string(),
-                        $elem/ancestor::ead:ead/ead:archdesc/ead:did/ead:unitid/string()
-                        )
-                        [1]))"/>
+                    <xsl:variable name="cmdid" as="xs:string" select="$elem/ancestor-or-self::ead:ead/ead:archdesc[1]/ead:did[1]/ead:unitid[1]/string()"/>
+                    <xsl:variable name="partof" as="element()" select="
+                        if ($elem/ancestor-or-self::*[self::ead:c or self::ead:c01 or self::ead:c02 or self::ead:c03 or self::ead:c04 or self::ead:c05 or self::ead:c06 or self::ead:c07 or self::ead:c08 or self::ead:c09 or self::ead:c10 or self::ead:c11 or self::ead:c12]) then
+                        $elem/ancestor-or-self::*[self::ead:c or self::ead:c01 or self::ead:c02 or self::ead:c03 or self::ead:c04 or self::ead:c05 or self::ead:c06 or self::ead:c07 or self::ead:c08 or self::ead:c09 or self::ead:c10 or self::ead:c11 or self::ead:c12][1]
+                        else if ($elem/ancestor-or-self::archdesc) then
+                            $elem/ancestor-or-self::ead:archdesc[1]
+                        else
+                            $elem/ancestor-or-self::ead:ead
+                        "/>
+                    <xsl:choose>
+                        <xsl:when test="$partof/self::ead:ead">
+                            <xsl:value-of select="concat('|', $cmdid, '|||', ($partof//ead:unittitle)[1]/string())"/>
+                        </xsl:when>
+                        <xsl:when test="$partof/ead:did/ead:unitid">
+                            <xsl:value-of select="concat('|', $cmdid, '|', ($partof/ead:did/ead:unitid)[1]/string(), '|', $partof/@level, '|', ($partof/ead:did/ead:unittitle)[1]/string())"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="concat('|', $cmdid, '||', $partof/@level, '|', ($partof/ead:did/ead:unittitle)[1]/string())"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:function>
                 
                 <pattern>
