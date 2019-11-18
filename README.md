@@ -1,1 +1,1 @@
-Miscellaneous scripts, schemas, etc I need online but do not warrant a repository of their own.
+Schemas, XSLT and XQuery for use by Bodleian Special Collections to check EAD files before loading into (or after export from) ArchivesSpace.
