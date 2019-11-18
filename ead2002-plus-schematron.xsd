@@ -43,8 +43,11 @@
                     
                     <let name="isfullcat" value="boolean(/ead:ead/ead:archdesc/ead:dsc/ead:*)"/>
                     <let name="issingleitem" value="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
+                    <let name="isatfile" value="boolean(contains(normalize-space(/ead:ead/ead:eadheader/ead:profiledesc/ead:creation/string()), 'Archivists'' Toolkit'))"/>
+                    
                     <let name="serieslevels" value="('series','subseries','otherlevel')"/>
                     <let name="filelevels" value="('file')"/>
+                    
                     <let name="scurls" value="('http://solo.ouls.ox.ac.uk/permalink/f/n9grc9/oxfaleph010801538','http://solo.bodleian.ox.ac.uk/permalink/f/n9grc9/oxfaleph010801538','http://solo.bodleian.ox.ac.uk/permalink/f/n9grc9/oxfaleph010116452','http://solo.ouls.ox.ac.uk/permalink/f/n9grc9/oxfaleph010116452')"/>
 
                     <!-- Banned elements at all levels -->
@@ -248,16 +251,40 @@
                         </assert>
                     </rule>
 
-                    <!-- Language of materials at any level -->
+                    <!-- Language of materials in files exported from Archivits' Toolkit -->
                     <rule 
-                        context="ead:langmaterial" 
-                        role="error">
+                        context="ead:langmaterial[$isatfile]">
+                        <let name="iscollectionlevel" value="boolean(parent::ead:did/parent::ead:archdesc)"/>
                         <let name="alllangmaterial" value="parent::ead:did/ead:langmaterial"/>
-                        <assert 
-                            test="$alllangmaterial/ead:language[@langcode] and string-length(normalize-space(replace(string-join($alllangmaterial//text()), '( and |,|\.)', ''))) gt 0">
-                            Insufficient language description: There must be both language codes and human-readable text
+                        <report
+                            test="$iscollectionlevel and not(count($alllangmaterial) gt 1 and $alllangmaterial[ead:language/@langcode] and $alllangmaterial[not(ead:language/@langcode) and string-length(normalize-space(string(.))) gt 0])"
+                            role="error">
+                            Languages: Need both human and machine readable langmaterials at collection level
                             <value-of select="local:getUnitId(.)"/>
-                        </assert>
+                        </report>
+                        <report
+                            test="not($iscollectionlevel) and not($alllangmaterial[ead:language/@langcode])"
+                            role="error">
+                            Languages: A machine readable langmaterial is needed below collection level
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
+                        <report
+                            test="not($iscollectionlevel) and not(ead:language/@langcode)"
+                            role="info">
+                            Languages: Additional langmaterial below collection level which does not contain langcode(s)
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
+                    </rule>
+                    
+                    <!-- Language of materials in files not exported from Archivits' Toolkit (summary catalogues, exports from ArchivesSpace) -->
+                    <rule 
+                        context="ead:langmaterial[not($isatfile)]" 
+                        role="error">
+                        <report 
+                            test="not(ead:language) or not(every $l in ead:language satisfies $l/@langcode and string-length(normalize-space($l)) gt 0)">
+                            Languages: There must be both language codes and human-readable text in one langmaterial element
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
                     </rule>
                     
                     <!-- Unitdates at all levels -->
