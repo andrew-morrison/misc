@@ -291,15 +291,15 @@
                     <rule 
                         context="ead:unitdate" >
                         <let name="isserieslevel" value="boolean(ancestor::ead:*[@level][1]/@level = $serieslevels)"/>
-                        <assert 
-                            test="not($isserieslevel) and @normal and matches(string(.), '\d')"
+                        <report 
+                            test="not($isserieslevel) and not(@normal) and not(matches(string(.), '\d'))"
                             role="error">
                             Missing attribute: unitdates must have normal attributes
                             <value-of select="local:getUnitId(.)"/>
-                        </assert>
+                        </report>
                         <report 
                             test="$isserieslevel and (@normal or @type)"
-                            role="warn">
+                            role="error">
                             Banned attribute: unitdates should not have attributes at series level
                             <value-of select="local:getUnitId(.)"/>
                         </report>
