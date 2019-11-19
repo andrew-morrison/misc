@@ -47,6 +47,7 @@
                     
                     <let name="serieslevels" value="('series','subseries','otherlevel')"/>
                     <let name="filelevels" value="('file')"/>
+                    <let name="unknowndates" value="('n.d.', 'Date not recorded at time of cataloguing')"/>
                     
                     <let name="scurls" value="('http://solo.ouls.ox.ac.uk/permalink/f/n9grc9/oxfaleph010801538','http://solo.bodleian.ox.ac.uk/permalink/f/n9grc9/oxfaleph010801538','http://solo.bodleian.ox.ac.uk/permalink/f/n9grc9/oxfaleph010116452','http://solo.ouls.ox.ac.uk/permalink/f/n9grc9/oxfaleph010116452')"/>
 
@@ -110,8 +111,8 @@
                             Missing element: unitid
                             <value-of select="local:getUnitId(.)"/>
                         </assert>
-                        <assert test="ead:unitdate[@type = 'inclusive']">
-                            Missing element: unitdate (of type "inclusive")
+                        <assert test="ead:unitdate">
+                            Missing element: unitdate
                             <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
@@ -230,8 +231,8 @@
                             Missing element: unitid
                             <value-of select="local:getUnitId(.)"/>
                         </assert>
-                        <assert test="ead:unitdate[@type = 'inclusive']">
-                            Missing element: unitdate (of type "inclusive")
+                        <assert test="ead:unitdate">
+                            Missing element: unitdate
                             <value-of select="local:getUnitId(.)"/>
                         </assert>
                         <assert test="ead:unittitle">
@@ -287,12 +288,14 @@
                         </report>
                     </rule>
                     
-                    <!-- Unitdates at all levels -->
+                    <!-- Unitdate attributes and values -->
                     <rule 
                         context="ead:unitdate" >
                         <let name="isserieslevel" value="boolean(ancestor::ead:*[@level][1]/@level = $serieslevels)"/>
+                        <let name="datetext" value="normalize-space(string(.))"/>
+                        <let name="containsnums" value="boolean(matches($datetext, '\d'))"/>
                         <report 
-                            test="not($isserieslevel) and not(@normal) and not(matches(string(.), '\d'))"
+                            test="not($isserieslevel) and not(@normal) and $containsnums"
                             role="error">
                             Missing attribute: unitdates must have normal attributes
                             <value-of select="local:getUnitId(.)"/>
@@ -300,7 +303,13 @@
                         <report 
                             test="$isserieslevel and (@normal or @type)"
                             role="error">
-                            Banned attribute: unitdates should not have attributes at series level
+                            Banned attribute: unitdates must not have attributes at series level
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
+                        <report 
+                            test="not($containsnums) and not($datetext = $unknowndates)"
+                            role="warn">
+                            Wrong text: When the date is unknown the text should be "<value-of select="string-join($unknowndates, '&quot; or &quot;')"/>"
                             <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
