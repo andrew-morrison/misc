@@ -179,8 +179,8 @@
                     <rule 
                         context="ead:*[@level = $serieslevels]" 
                         role="error">
-                        <assert test="ead:odd/ead:head[normalize-space(string()) = 'Full range of shelfmarks:']">
-                            Missing element: odd (with a heading of "Full range of shelfmarks:")
+                        <assert test="not(ead:*[@level = $filelevels]) or ead:odd/ead:head[normalize-space(string()) = 'Full range of shelfmarks:']">
+                            Missing element: odd (with a heading of "Full range of shelfmarks:" in a series/sub-series/otherlevel which contains child file levels)
                             <value-of select="local:getUnitId(.)"/>
                         </assert>
                     </rule>
