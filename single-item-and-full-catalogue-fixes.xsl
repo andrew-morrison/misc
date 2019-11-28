@@ -78,10 +78,10 @@
     <xsl:template match="ead:physdesc/@label"/>
     
     
-    <!-- Change 10 for full catalogues only: Ensure extent, physfacet and dimensions are each in 
-         their own physdesc parent -->
+    <!-- Change 10 (was for full catalogues only, now single items too): Ensure extent, physfacet and 
+         dimensions are each in their own physdesc parent -->
     
-    <xsl:template match="ead:physdesc[count(ead:extent|ead:physfacet|ead:dimensions) gt 1 and $isfullcat]">
+    <xsl:template match="ead:physdesc[count(ead:extent|ead:physfacet|ead:dimensions) gt 1]">
         <xsl:if test="ead:extent">
             <xsl:copy>
                 <xsl:apply-templates select="ead:extent"/>
