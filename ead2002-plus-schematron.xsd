@@ -383,6 +383,15 @@
                             <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
+                    
+                    <!-- Look for broken entity references in all text nodes -->
+                    <rule context="text()" role="warn">
+                        <report 
+                            test="matches(., '&amp;#')">
+                            Probable broken entity references: <value-of select="count(tokenize(., '&amp;#')) - 1"/> instances found in this block of text
+                            <value-of select="local:getUnitId(parent::*)"/>
+                        </report>
+                    </rule>
 
                 </pattern>
                 

@@ -15,6 +15,51 @@
     <!-- Global variables -->
     <xsl:variable name="isfullcat" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/ead:dsc/ead:*)"/>
     <xsl:variable name="issingleitem" as="xs:boolean" select="boolean(/ead:ead/ead:archdesc/@level = 'item')"/>
+    <xsl:variable name="unicodemap" as="map(xs:string, xs:string)">
+        <xsl:map>
+            <xsl:map-entry key="'x00C0'" select="'À'"/>
+            <xsl:map-entry key="'x00C2'" select="'Â'"/>
+            <xsl:map-entry key="'x00C4'" select="'Ä'"/>
+            <xsl:map-entry key="'x00C7'" select="'Ç'"/>
+            <xsl:map-entry key="'x00C9'" select="'É'"/>
+            <xsl:map-entry key="'x00D3'" select="'Ó'"/>
+            <xsl:map-entry key="'x00D6'" select="'Ö'"/>
+            <xsl:map-entry key="'x00D8'" select="'Ø'"/>
+            <xsl:map-entry key="'x00E0'" select="'à'"/>
+            <xsl:map-entry key="'x00E1'" select="'á'"/>
+            <xsl:map-entry key="'x00E2'" select="'â'"/>
+            <xsl:map-entry key="'x00E3'" select="'ã'"/>
+            <xsl:map-entry key="'x00E4'" select="'ä'"/>
+            <xsl:map-entry key="'x00E6'" select="'æ'"/>
+            <xsl:map-entry key="'x00E7'" select="'ç'"/>
+            <xsl:map-entry key="'x00E8'" select="'è'"/>
+            <xsl:map-entry key="'x00E9'" select="'é'"/>
+            <xsl:map-entry key="'x00EA'" select="'ê'"/>
+            <xsl:map-entry key="'x00EB'" select="'ë'"/>
+            <xsl:map-entry key="'x00ED'" select="'í'"/>
+            <xsl:map-entry key="'x00EF'" select="'ï'"/>
+            <xsl:map-entry key="'x00F1'" select="'ñ'"/>
+            <xsl:map-entry key="'x00F3'" select="'ó'"/>
+            <xsl:map-entry key="'x00F4'" select="'ô'"/>
+            <xsl:map-entry key="'x00F6'" select="'ö'"/>
+            <xsl:map-entry key="'x00F8'" select="'ø'"/>
+            <xsl:map-entry key="'x00F9'" select="'ù'"/>
+            <xsl:map-entry key="'x00FB'" select="'û'"/>
+            <xsl:map-entry key="'x00FC'" select="'ü'"/>
+            <xsl:map-entry key="'x0105'" select="'ą'"/>
+            <xsl:map-entry key="'x0107'" select="'ć'"/>
+            <xsl:map-entry key="'x010C'" select="'Č'"/>
+            <xsl:map-entry key="'x010D'" select="'č'"/>
+            <xsl:map-entry key="'x011B'" select="'ě'"/>
+            <xsl:map-entry key="'x0142'" select="'ł'"/>
+            <xsl:map-entry key="'x0159'" select="'ř'"/>
+            <xsl:map-entry key="'x015F'" select="'ş'"/>
+            <xsl:map-entry key="'x0161'" select="'š'"/>
+            <xsl:map-entry key="'x017D'" select="'Ž'"/>
+            <xsl:map-entry key="'x017E'" select="'ž'"/>
+            <xsl:map-entry key="'x1ef7'" select="'ỷ'"/>
+        </xsl:map>
+    </xsl:variable>
     
     <!-- Root template -->
     
@@ -346,9 +391,32 @@
         </xsl:copy>
     </xsl:template>
     
-    <xsl:template match="text()|comment()|processing-instruction()">
+    <xsl:template match="comment()|processing-instruction()">
         <xsl:copy/>
     </xsl:template>
     
+    
+    <!-- Fix broken entity references (everywhere but extent and prefercite, which are matched by 
+         templates above, but are unlikely to contain any.) Only works for the codes in $unicodemap,
+         anything else will be left unchanged. -->
+    
+    <xsl:template match="text()">
+        <xsl:analyze-string select="." regex="&amp;#([^;]+);">
+            <xsl:matching-substring>
+                <xsl:variable name="replacement" as="xs:string*" select="$unicodemap(regex-group(1))"/>
+                <xsl:choose>
+                    <xsl:when test="exists($replacement)">
+                        <xsl:value-of select="$replacement"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="."/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:matching-substring>
+            <xsl:non-matching-substring>
+                <xsl:value-of select="."/>
+            </xsl:non-matching-substring>
+        </xsl:analyze-string>
+    </xsl:template> 
     
 </xsl:stylesheet>
