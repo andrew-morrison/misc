@@ -180,12 +180,13 @@
     </xsl:template>
     
     
-    <!-- Change 14 for full catalogues only: Adjust existing containers -->
+    <!-- Change 14 for full catalogues only: Adjust existing containers
+         2020-06-15: Added extra space normalization -->
     
     <xsl:template match="ead:container[$isfullcat]">
         <xsl:choose>
             <xsl:when test="not(@altrender) or not(contains(@label, normalize-space(string())))">
-                <xsl:variable name="barcode" as="xs:string" select="replace(@label, '^[^\(]+\(([^\)]+)\).*$', '$1')"/>
+                <xsl:variable name="barcode" as="xs:string" select="normalize-space(replace(@label, '^[^\(]+\(([^\)]+)\).*$', '$1'))"/>
                 <xsl:copy>
                     <xsl:attribute name="altrender" select="normalize-space(string())"/>
                     <xsl:attribute name="label">Mixed Materials [<xsl:value-of select="$barcode"/>]</xsl:attribute>
@@ -196,7 +197,14 @@
             <xsl:otherwise>
                 <xsl:copy>
                     <xsl:apply-templates select="@*"/>
-                    <xsl:apply-templates/>
+                    <xsl:choose>
+                        <xsl:when test="child::*|comment()|processing-instruction()">
+                            <xsl:apply-templates/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="normalize-space(string())"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:copy>
                 <xsl:message>Unmodified container|<xsl:copy-of select="."/></xsl:message>
             </xsl:otherwise>
@@ -369,10 +377,17 @@
     </xsl:template>
     
     
-    <!-- Additional changes: fix extra/invalid spaces in attributes -->
+    <!-- Additional changes: fix extra/invalid spaces in attributes
+         2020-06-15: Added template to fix spaces inside brackets in existing container labels -->
     
     <xsl:template match="@source[matches(., '\s')]">
         <xsl:attribute name="source" select="replace(., '\s+', '_')"/>
+    </xsl:template>
+    
+    <xsl:template match="ead:container/@label">
+        <xsl:attribute name="label">
+            <xsl:value-of select="normalize-space(replace(replace(., '\s+([\]\)])', '$1'), '([\[\(])\s+', '$1'))"/>
+        </xsl:attribute>
     </xsl:template>
     
     <xsl:template match="@*">
@@ -380,7 +395,6 @@
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:copy>
     </xsl:template>
-    
     
     <!-- Everything else is copied to output unchanged -->
     

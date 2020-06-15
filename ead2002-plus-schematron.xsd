@@ -4,7 +4,7 @@
     <!-- Import the full EAD 2002 XML Schema -->
     <xs:import namespace="urn:isbn:1-931666-22-9" schemaLocation="http://www.loc.gov/ead/ead.xsd"/>
 
-    <!-- Add Schematron rules on top -->
+    <!-- Add Schematron rules to impose further restrictions and warnings -->
     <xs:element name="ead">
         <xs:annotation>
             <xs:appinfo>
@@ -37,6 +37,11 @@
                             <xsl:value-of select="concat('|', $cmdid, '||', $partof/@level, '|', ($partof/ead:did/ead:unittitle)[1]/string())"/>
                         </xsl:otherwise>
                     </xsl:choose>
+                </xsl:function>
+                
+                <xsl:function name="local:normSpaceAndCase" as="xs:string">
+                    <xsl:param name="str" as="xs:string"/>
+                    <xsl:value-of select="replace(lower-case($str), '\s+', '')"/>
                 </xsl:function>
                 
                 <pattern>
@@ -390,6 +395,24 @@
                             test="matches(., '&amp;#')">
                             Probable broken entity references: <value-of select="count(tokenize(., '&amp;#')) - 1"/> instances found in this block of text
                             <value-of select="local:getUnitId(parent::*)"/>
+                        </report>
+                    </rule>
+                    
+                    <!-- Look for containers/barcodes which can cause problems for the ArchivesSpace EAD importer -->
+                    <rule context="ead:container">
+                        <let name="label" value="string(@label)"/>
+                        <let name="normlabel" value="local:normSpaceAndCase($label)"/>
+                        <report 
+                            test="matches($label, '[\(\[].*?\s+.*?[\)\]]\s*$')"
+                            role="warn">
+                            Container label: Spaces inside the brackets where ArchivesSpace looks for barcodes
+                            <value-of select="local:getUnitId(.)"/>
+                        </report>
+                        <report 
+                            test="count(preceding::ead:container[@label = $label]) ne count(preceding::ead:container[local:normSpaceAndCase(@label) = $normlabel])"
+                            role="error">
+                            Container label: Same as one earlier in the same EAD file but with upper/lower case differences or more/less spaces
+                            <value-of select="local:getUnitId(.)"/>
                         </report>
                     </rule>
 
